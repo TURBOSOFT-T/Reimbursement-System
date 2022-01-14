@@ -5,7 +5,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,21 +17,29 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.reimbursement.exception.ResourceNotFoundException;
 import com.reimbursement.models.Reimbursement;
 import com.reimbursement.repositories.ReimbursementRepository;
 import com.reimbursement.repositories.UserRepository;
 
-@CrossOrigin(origins = "http://localhost:4200")
+
 @RestController
 @RequestMapping(value = "/api")
 public class RiembusementController {
 	
 	
-/*
+
 	@Autowired
 	private ReimbursementRepository reimbursementRepository;
 	@Autowired
 	private UserRepository userRepository;
+	
+	/*
+	@GetMapping("/users/{reimbursementId}/reimbursements")
+	public Page<Reimbursement> getAllReimbursements( @PathVariable(value = "userId") Long userId, Pageable pageable) {
+		return reimbursementRepository.findAll( pageable);
+
+	}*/
 
 	@GetMapping("/users/{reimbursementId}/reimbursements")
 	public Page<Reimbursement> getAllReimbursementsByUserId(@PathVariable(value = "userId") Long userId,
@@ -65,14 +73,14 @@ public class RiembusementController {
 
 			return reimbursementRepository.save(reimbursement);
 		}).orElseThrow(() -> new ResourceNotFoundException("reimbursementId " + reimbursementId + "not found"));
-	}*/
-/*
+	}
+
 	@DeleteMapping("/users/{userId}/reimbursements/{reimbursementId}")
 	public ResponseEntity<?> deleteReimbursement(@PathVariable(value = "userId") Long userId,
 			@PathVariable(value = "reimbursementId") Long reimbursementId) {
-		return reimbursementRepository.findByIdAndUserId(reimbursementId, userId).map(reimbursement -> {
-			reimbursementRepository.delete(reimbursement);
+		return reimbursementRepository.findByIdAndUserId(reimbursementId, userId).map(comment -> {
+			reimbursementRepository.delete(comment);
 			return ResponseEntity.ok().build();
 		}).orElseThrow(() -> new ResourceNotFoundException("Reimbursement not found with id " + reimbursementId + " and userId " + userId));
-	}*/
+	}
 }
