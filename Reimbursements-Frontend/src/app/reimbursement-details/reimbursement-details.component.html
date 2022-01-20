@@ -1,0 +1,25 @@
+<p>
+  reimbursement-details works!
+</p>
+
+<h2>Reimbursement Details</h2>
+
+<hr/>
+<div *ngIf="reimbursement">
+  <div>
+    <label><b>Title: </b></label> {{reimbursement.title}}
+  </div>
+  <div>
+    <label><b>Reason: </b></label> {{reimbursement.reason}}
+  </div>
+  <div>
+    <label><b>Amount: </b></label> {{reimbursement.amount}}
+  </div>
+  <div>
+    <label><b>Status: </b></label> {{reimbursement.status}}
+  </div>
+</div>
+
+<br>
+<br>
+<button (click)="list()" class="btn btn-primary">Back to Reimbursement List</button><br>

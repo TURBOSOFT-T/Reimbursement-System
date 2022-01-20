@@ -1,5 +1,9 @@
 package com.reimbursement.controllers;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +21,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import com.reimbursement.exception.ResourceNotFoundException;
 import com.reimbursement.models.Reimbursement;
 import com.reimbursement.repositories.ReimbursementRepository;
 import com.reimbursement.repositories.UserRepository;
 
 
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping("/api/v1")
 public class RiembusementController {
-	
-	
 
 	@Autowired
 	private ReimbursementRepository reimbursementRepository;
@@ -35,52 +39,59 @@ public class RiembusementController {
 	private UserRepository userRepository;
 	
 	/*
-	@GetMapping("/users/{reimbursementId}/reimbursements")
-	public Page<Reimbursement> getAllReimbursements( @PathVariable(value = "userId") Long userId, Pageable pageable) {
-		return reimbursementRepository.findAll( pageable);
+	 * @GetMapping("/reimbursements1") public Page<Reimbursement>
+	 * getAllReimbursements1( Pageable pageable) { return
+	 * reimbursementRepository.findAll( pageable);
+	 * 
+	 * }
+	 */
+	@GetMapping("/reimbursements")
+    public List<Reimbursement> getAllReimbursements() {
+        return reimbursementRepository.findAll();
+    }
+	/*
+	 * @GetMapping("/users/{reimbursementId}/reimbursements") public
+	 * Page<Reimbursement> getAllReimbursementsByUserId(@PathVariable(value =
+	 * "userId") Long userId, Pageable pageable) { return
+	 * reimbursementRepository.findByUserId(userId, pageable); }
+	 */
 
-	}*/
-
-	@GetMapping("/users/{reimbursementId}/reimbursements")
-	public Page<Reimbursement> getAllReimbursementsByUserId(@PathVariable(value = "userId") Long userId,
-			Pageable pageable) {
-		return reimbursementRepository.findByUserId(userId, pageable);
+	@PostMapping("/reimbursements")
+	public Reimbursement createReimbursement(@Valid @RequestBody Reimbursement reimbursement) {
+		return reimbursementRepository.save(reimbursement);
+	}
+	@GetMapping("/reimbursements/{id}")
+	public ResponseEntity<Reimbursement> getReimbursementById(@PathVariable(value = "id") Long id)
+			throws ResourceNotFoundException {
+		Reimbursement reimbursement = reimbursementRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("reimbursement not found for this id :: " + id));
+		return ResponseEntity.ok().body(reimbursement);
 	}
 
-	@PostMapping("/users/{userId}/reimbursements")
-	public Reimbursement createReimbursement(@PathVariable(value = "userId") Long userId,
-			@Valid @RequestBody Reimbursement reimbursement) {
-		return userRepository.findById(userId).map(user -> {
-			reimbursement.setUser(user);
+	@PutMapping("/reimbursements/{id}")
+	public ResponseEntity<Reimbursement> updateReimbursement(@PathVariable(value = "id") Long Id,
+			@Valid @RequestBody Reimbursement reimbursementtDetails) throws ResourceNotFoundException {
+		Reimbursement reimbursement = reimbursementRepository.findById(Id)
+				.orElseThrow(() -> new ResourceNotFoundException("Reimbursement not found for this id :: " + Id));
 
-			return reimbursementRepository.save(reimbursement);
-		}).orElseThrow(() -> new ResourceNotFoundException("UserId " + userId + " not found"));
+		reimbursement.setTitle(reimbursementtDetails.getTitle());
+		reimbursement.setReason(reimbursementtDetails.getReason());
+		reimbursement.setAmount(reimbursementtDetails.getAmount());
+		
+		
+		final Reimbursement updatedReimbursement = reimbursementRepository.save(reimbursement);
+		return ResponseEntity.ok(updatedReimbursement);
+	}
+	@DeleteMapping("/reimbursements/{id}")
+	public Map<String, Boolean> deleteReimbursement(@PathVariable(value = "id") Long reimbursementId)
+			throws ResourceNotFoundException {
+		Reimbursement reimbursement = reimbursementRepository.findById(reimbursementId)
+				.orElseThrow(() -> new ResourceNotFoundException("eimbursement not found for this id :: " + reimbursementId));
+
+		reimbursementRepository.delete(reimbursement);
+		Map<String, Boolean> response = new HashMap<>();
+		response.put("deleted", Boolean.TRUE);
+		return response;
 	}
 
-	@PutMapping("/user/{userId}/reimbursements/{reimbursementId}")
-	public Reimbursement updateReimbursement(@PathVariable(value = "userId") Long userId,
-			@PathVariable(value = "reimbursementId") Long reimbursementId,
-			@Valid @RequestBody Reimbursement reimbursementRequest) {
-		if (!userRepository.existsById(userId)) {
-			throw new ResourceNotFoundException("userId " + userId + " not found");
-		}
-
-		return reimbursementRepository.findById(reimbursementId).map(reimbursement -> {
-
-			reimbursement.setTitle(reimbursement.getTitle());
-			reimbursement.setReason(reimbursement.getReason());
-			reimbursement.setAmount(reimbursement.getAmount());
-
-			return reimbursementRepository.save(reimbursement);
-		}).orElseThrow(() -> new ResourceNotFoundException("reimbursementId " + reimbursementId + "not found"));
-	}
-
-	@DeleteMapping("/users/{userId}/reimbursements/{reimbursementId}")
-	public ResponseEntity<?> deleteReimbursement(@PathVariable(value = "userId") Long userId,
-			@PathVariable(value = "reimbursementId") Long reimbursementId) {
-		return reimbursementRepository.findByIdAndUserId(reimbursementId, userId).map(comment -> {
-			reimbursementRepository.delete(comment);
-			return ResponseEntity.ok().build();
-		}).orElseThrow(() -> new ResourceNotFoundException("Reimbursement not found with id " + reimbursementId + " and userId " + userId));
-	}
 }

@@ -27,22 +27,17 @@ public class ReimbursementSystemApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		// TODO Auto-generated method stub
-		//User user = new User(null, "Thomas", null);
-		//userRepository.save(user);
-		//User user1 = new User(null, null, null);
-		//userRepository.save(user1);
 		
 		
 
-		Reimbursement reimbursement = new Reimbursement(null, "ttt", "rrrr", 10, false, null);
+		Reimbursement reimbursement = new Reimbursement(null, null, null, 55, false, null);
 		reimbursementRepository.save(reimbursement);
 		
 
-		Reimbursement reimbursement1 = new Reimbursement(null, "hhh", "gggg", 8, true, null);
+		Reimbursement reimbursement1 = new Reimbursement(null, null, null, 88, false, null);
 		reimbursementRepository.save(reimbursement1);
 		
-		
+		reimbursementRepository.findAll().forEach(System.out::println);
 
 	}
 
